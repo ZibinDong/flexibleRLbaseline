@@ -22,8 +22,10 @@ class Trainer:
         gradient_step_interval: int = 1,
         n_gradient_steps: int = 1,
         
+        seed: int = 1,
         wandb_log: bool = True,
     ):
+        utils.set_seed(seed)
         self.agent = agent
         self.env = env
         self.env_eval = env_eval

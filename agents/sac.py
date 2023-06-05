@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import torch
 import torch.nn.functional as F
@@ -19,7 +19,7 @@ class SACAgent(ContinuousAgent):
 
         actor_hidden_dims: list = [256, 256],
         critic_hidden_dims: list = [256, 256],
-        activation: torch.nn.Module = torch.nn.ReLU(),
+        activation: Union[torch.nn.Module, str] = 'relu',
         
         init_temperature: float = 0.2,
         target_entropy: Optional[float] = None,
@@ -41,20 +41,20 @@ class SACAgent(ContinuousAgent):
         
         max_replay_buffer_size: int = 500_000,
         
-        seed: int = 0,
         device: str = 'cpu',
     ):
         super().__init__(
             observation_dim=observation_dim,
             action_dim=action_dim,
         )
-        utils.set_seed(seed)
         self.device = device
 
         self.target_entropy = - action_dim if target_entropy is None else target_entropy
         self.gamma = gamma
         self.max_grad_norm = max_grad_norm
         self.batch_size = batch_size
+        
+        activation = utils.str2activation(activation)
         
         self.actor = models.ContinuousStochesticActor(
             observation_dim=observation_dim,

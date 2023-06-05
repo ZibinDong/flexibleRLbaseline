@@ -1,15 +1,41 @@
-Agent:
+name: sac
+
+param:
   _target_: agents.SACAgent
 
-  observation_dim: ?
-  action_dim: ?
+  device: ???
 
-  actor_hidden_dims: [128, 128]
-  critic_hidden_dims: [128, 128]
+  observation_dim: ???  # specify later
+  action_dim: ???       # specify later
+
+  # network parameters
+  actor_hidden_dims:
+    - 128
+    - 128
+  critic_hidden_dims:
+    - 256
+    - 256
   activation: 'relu' # 'relu', 'elu', 'leaky_relu'
-
   init_temperature: 0.2
-  target_entropy: None
-  
 
+  # training parameters
+  target_entropy: null # null for automatic setting
+  actor_learning_rate: 0.0003
+  critic_learning_rate: 0.0003
+  temperature_learning_rate: 0.0003
+  batch_size: 256
+  max_grad_norm: 100.
+  gamma: 0.99
+  tau: 0.005
+
+  # agent parameters
+  use_truncated_action: True
+  n_q_nets: 2
+  log_std_min: -20.
+  log_std_max: 2.
+
+  # replay buffer parameters
+  max_replay_buffer_size: 500000
+
+  
 

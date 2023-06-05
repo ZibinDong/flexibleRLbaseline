@@ -1,0 +1,16 @@
+benchmark: 'dmc'
+
+param:
+  domain_name: 'walker'
+  task_name: 'walk'
+
+  visualize_reward: true
+  from_pixels: false
+  height: 84
+  width: 84
+  camera_id: 0
+  frame_skip: 1
+  episode_length: 1000
+  environment_kwargs: null
+  time_limit: null
+  channels_first: true

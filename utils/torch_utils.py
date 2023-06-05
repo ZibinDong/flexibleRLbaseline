@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import torch.nn as nn
-from typing import List
+from typing import List, Union
 
 def to_torch(x, dtype=torch.float32, device="cpu"):
     if isinstance(x, np.ndarray):
@@ -33,6 +33,17 @@ def freeze_params(module: nn.Module):
 def unfreeze_params(module: nn.Module):
     for param in module.parameters():
         param.requires_grad = True
+        
+def str2activation(activation: Union[nn.Module, str]):
+    if isinstance(activation, nn.Module):
+        return activation
+    elif isinstance(activation, str):
+        if activation == 'relu': return nn.ReLU()
+        elif activation == 'elu': return nn.ELU()
+        elif activation == 'leaky_relu': return nn.LeakyReLU()
+        else: raise NotImplementedError("Unsupport activation {}".format(activation))
+    else:
+        raise TypeError("Unknown type {}".format(type(activation)))
         
 class FreezeParameters():
     def __init__(self, modules: List[nn.Module]):
