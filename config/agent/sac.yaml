@@ -1,0 +1,15 @@
+Agent:
+  _target_: agents.SACAgent
+
+  observation_dim: ?
+  action_dim: ?
+
+  actor_hidden_dims: [128, 128]
+  critic_hidden_dims: [128, 128]
+  activation: 'relu' # 'relu', 'elu', 'leaky_relu'
+
+  init_temperature: 0.2
+  target_entropy: None
+  
+
+
