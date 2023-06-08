@@ -1,8 +1,8 @@
 benchmark: 'dmc'
 
 param:
-  domain_name: 'walker'
-  task_name: 'walk'
+  domain_name: 'hopper'
+  task_name: 'hop'
 
   visualize_reward: true
   from_pixels: false

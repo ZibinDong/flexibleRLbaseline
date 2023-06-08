@@ -153,11 +153,11 @@ class SACAgent(ContinuousAgent):
             'step': step,
             'actor': self.actor.state_dict(),
             'critic': self.critic.state_dict(),
-            'alpha': self.alpha.state_dict(),
+            'alpha': self.alpha.data,
         }, path / f"sac_{utils.abbreviate_number(step)}.pt")
         
     def load(self, path: Path, filename: str):
         checkpoint = torch.load(path / filename)
         self.actor.load_state_dict(checkpoint['actor'])
         self.critic.load_state_dict(checkpoint['critic'])
-        self.alpha.load_state_dict(checkpoint['alpha'])
+        self.alpha.data = checkpoint['alpha']
