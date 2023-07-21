@@ -1,10 +1,10 @@
 benchmark: 'dmc'
 
 param:
-  domain_name: 'hopper'
-  task_name: 'hop'
+  domain_name: 'humanoid'
+  task_name: 'run'
 
-  visualize_reward: true
+  visualize_reward: false
   from_pixels: false
   height: 84
   width: 84

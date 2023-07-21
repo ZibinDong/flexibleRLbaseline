@@ -8,13 +8,12 @@ import wandb
 from agents import Agent
 
 
-class Trainer:
+class HighwayTrainer:
     def __init__(self,
         agent: Agent,
         env: gym.Env,
         env_eval: gym.Env,
         
-        no_terminal: bool = True,
         exploration_steps: int = 2000,
         eval_interval: int = 10_000,
         log_interval: int = 5_000,
@@ -41,7 +40,6 @@ class Trainer:
         self.log_interval = log_interval
         self.save_interval = save_interval
         self.save_video = save_video
-        self.no_terminal = no_terminal
         
         self.step = 0
         self.wandb_log = wandb_log
@@ -56,83 +54,66 @@ class Trainer:
         
     def _explore(self):
         obs, done = self.env.reset(), False
-        ep_len = 0
         for _ in range(self.exploration_steps):
             act = self.env.action_space.sample()
-            next_obs, rew, done, _ = self.env.step(act)
-            ep_len += 1
-            self.agent.buffer.add(obs, act, rew, done and (1-self.no_terminal), next_obs)
-            if done:
+            next_obs, rew, done, info = self.env.step(act)
+            if info["truncated"]: done = False
+            self.agent.buffer.add(obs, act, rew, done)
+            if done or info["truncated"]:
                 obs, done = self.env.reset(), False
             else:
                 obs = next_obs
 
-    def _eval(self, n_eval_episodes: int = 5):
+    def _eval(self, n_eval_episodes: int = 1):
+        print("evaluating...")
         ep_mean_rew, ep_mean_len = 0., 0.
         
-        ep_mean_vel = 0.
-        ep_mean_height = 0.
-        log = {}
-        
         if self.save_video: 
-            frames, ptr = np.empty((200, 3, 100, 100), dtype=np.uint8), 0
-            
+            frames = []
+
         for e in range(n_eval_episodes):
-            obs, done = self.env_eval.reset(), False
-            while not done:
+            obs, done, truncated = self.env_eval.reset(), False, False
+            while not (done or truncated):
                 act = self.agent.act(obs, deterministic=True)
                 obs, rew, done, info = self.env_eval.step(act)
+                truncated = info["truncated"]
                 ep_mean_rew += rew
                 ep_mean_len += 1
                 
-                if "wandb_log_info" in info.keys():
-                    for k, v in info["wandb_log_info"].items():
-                        if k in log.keys(): log[k] += v
-                        else: log[k] = v
+                if self.save_video and len(frames) < 200:
+                    frames.append(self.env_eval.render())
                 
-                ep_mean_vel += np.linalg.norm(self.env_eval.physics.center_of_mass_velocity()[[0, 1]])
-                ep_mean_height += self.env_eval.physics.head_height()
-                
-                if self.save_video and ptr < 200:
-                    frames[ptr] = np.transpose(self.env_eval.render(mode='rgb_array', camera_id=1, height=100, width=100), (2, 0, 1))
-                    ptr += 1
-        
-        for k, v in log.items():
-            log[k] = v / n_eval_episodes / 1000.
-        
-        log['eval_ep_rew'] = ep_mean_rew / n_eval_episodes
-        log['eval_ep_len'] = ep_mean_len / n_eval_episodes
-
-        if self.save_video: log["eval_video"] = wandb.Video(frames, fps=30, format="gif")
+        print("uploading...")
+        log = {
+            'eval_ep_rew': ep_mean_rew / n_eval_episodes,
+            'eval_ep_len': ep_mean_len / n_eval_episodes,
+        }
+        if self.save_video: log["eval_video"] = wandb.Video(np.array(frames).transpose(0, 3, 1, 2), fps=20, format="mp4")
         if self.wandb_log: wandb.log(log, step=self.step)
         else: print(log)
-            
+
     def run(
         self,
         total_steps: int = 100_000,
     ):
         self._explore()
+        self._eval()
         
         obs, done = self.env.reset(), False
         ep_rew, ep_len, log = 0., 0., {}
-        for _ in range(total_steps):
+        for t in range(total_steps):
+            self.agent.exploration_noise = max(0.1, 1. - t / 10_000)
             act = self.agent.act(obs, deterministic=False)
             next_obs, rew, done, info = self.env.step(act)
+            if info["truncated"]: done = False
             ep_rew += rew
             ep_len += 1
-            
-            if "wandb_log_info" in info.keys():
-                for k, v in info["wandb_log_info"].items():
-                    if k in log.keys(): log[k] += v
-                    else: log[k] = v
-            
-            # ！ set done=False when the episode reaches max length
-            self.agent.buffer.add(obs, act, rew, done and (1-self.no_terminal), next_obs)
-            if done:
-                for k, v in log.items():
-                    log[k] = v / 1000.
-                log["ep_rew"] = ep_rew
-                log["ep_len"] = ep_len
+            self.agent.buffer.add(obs, act, rew, done or self.env.raw_env.vehicle.crashed)
+            if done or info["truncated"]:
+                log = {
+                    "ep_rew": ep_rew,
+                    "ep_len": ep_len,
+                }
                 if self.wandb_log: wandb.log(log, step=self.step)
                 else: print(log)
                 obs, done = self.env.reset(), False

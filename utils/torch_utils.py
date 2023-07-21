@@ -11,7 +11,9 @@ def to_torch(x, dtype=torch.float32, device="cpu"):
     elif isinstance(x, (int, float, bool)):
         return torch.tensor(x, dtype=dtype, device=device)
     else:
-        raise ValueError("Unknown type {}".format(type(x)))
+        return torch.tensor(x, dtype=dtype, device=device)
+    # else:
+    #     raise ValueError("Unknown type {}".format(type(x)))
  
 @torch.no_grad()   
 def orthogonal_init(m: nn.Module):

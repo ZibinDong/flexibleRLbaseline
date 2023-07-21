@@ -1,11 +1,11 @@
 defaults:
   - agent: sac
-  - env: dmc
+  - env: diy
   - _self_
 
 seed: 1
-device: 'cuda'
-total_steps: 1000000
+device: 'cuda:1'
+total_steps: 5_000_000
 
 wandb_cfg:
   use_wandb_log: True
@@ -13,17 +13,14 @@ wandb_cfg:
 
 Trainer:
   _target_: train.Trainer
-
-  agent: ???
-  env: ???
-  env_eval: ???
-
-  exploration_steps: 2000
-  eval_interval: 10000
-  log_interval: 5000
-  save_interval: 200000
+  exploration_steps: 5_000
+  eval_interval: 500_000
+  log_interval: 5_000
+  save_interval: 500_000
   target_update_interval: 1
   gradient_step_interval: 1
   n_gradient_steps: 1
+  save_video: True
+  no_terminal: True
 
 

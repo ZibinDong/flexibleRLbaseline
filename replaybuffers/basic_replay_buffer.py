@@ -16,8 +16,11 @@ class BasicReplayBuffer():
     ):
         self.is_action_discrete = (action_dim == 0)
         
-        self._obs = torch.empty((max_replay_buffer_size+1, observation_dim), \
+        self._obs = torch.empty((max_replay_buffer_size, observation_dim), \
             dtype=torch.float32, device=device)
+        self._next_obs = torch.empty((max_replay_buffer_size, observation_dim), \
+            dtype=torch.float32, device=device)
+        
         if self.is_action_discrete:
             self._act = torch.empty((max_replay_buffer_size,), \
                 dtype=torch.long, device=device)
@@ -40,8 +43,9 @@ class BasicReplayBuffer():
     def __add__(self, *args):
         self.add(*args)
         
-    def add(self, obs, act, rew, done):
+    def add(self, obs, act, rew, done, next_obs):
         self._obs[self.ptr] = utils.to_torch(obs, device=self.device)
+        self._next_obs[self.ptr] = utils.to_torch(next_obs, device=self.device)
         self._act[self.ptr] = utils.to_torch(act, device=self.device)
         self._rew[self.ptr] = float(rew)
         self._done[self.ptr] = float(done)
@@ -55,5 +59,5 @@ class BasicReplayBuffer():
             self._act[indeces],
             self._rew[indeces, None],
             self._done[indeces, None],
-            self._obs[indeces+1],
+            self._next_obs[indeces],
         )

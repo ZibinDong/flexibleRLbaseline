@@ -10,32 +10,32 @@ param:
 
   # network parameters
   actor_hidden_dims:
-    - 128
-    - 128
+    - 512
+    - 512
   critic_hidden_dims:
-    - 256
-    - 256
+    - 1024
+    - 1024
   activation: 'relu' # 'relu', 'elu', 'leaky_relu'
-  init_temperature: 0.2
+  init_temperature: 0.1
 
   # training parameters
-  target_entropy: -2 # null for automatic setting
+  target_entropy: null # null for automatic setting
   actor_learning_rate: 0.0003
   critic_learning_rate: 0.0003
   temperature_learning_rate: 0.0003
-  batch_size: 256
-  max_grad_norm: 100.
+  batch_size: 512
+  max_grad_norm: 5.
   gamma: 0.99
   tau: 0.005
 
   # agent parameters
   use_truncated_action: True
   n_q_nets: 2
-  log_std_min: -20.
+  log_std_min: -10.
   log_std_max: 2.
 
   # replay buffer parameters
-  max_replay_buffer_size: 500000
+  max_replay_buffer_size: 1_000_000
 
   
 
