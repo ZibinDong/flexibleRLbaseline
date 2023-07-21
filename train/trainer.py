@@ -136,7 +136,7 @@ class Trainer:
                 if self.wandb_log: wandb.log(log, step=self.step)
                 else: print(log)
                 obs, done = self.env.reset(), False
-                ep_rew, ep_len = 0., 0.
+                ep_rew, ep_len, log = 0., 0., {}
             else:
                 obs = next_obs
                 
