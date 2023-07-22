@@ -86,9 +86,10 @@ class Trainer:
                 ep_mean_len += 1
                 
                 if "wandb_log_info" in info.keys():
-                    for k, v in info["wandb_log_info"].items():
-                        if k in log.keys(): log[k] += v
-                        else: log[k] = v
+                    if log == {}: 
+                        log = {k: v for k, v in info["wandb_log_info"].items()}
+                    else: 
+                        for k, v in info["wandb_log_info"].items(): log[k] += v
                 
                 ep_mean_vel += np.linalg.norm(self.env_eval.physics.center_of_mass_velocity()[[0, 1]])
                 ep_mean_height += self.env_eval.physics.head_height()
@@ -97,8 +98,8 @@ class Trainer:
                     frames[ptr] = np.transpose(self.env_eval.render(mode='rgb_array', camera_id=1, height=100, width=100), (2, 0, 1))
                     ptr += 1
         
-        for k, v in log.items():
-            log[k] = v / n_eval_episodes / 1000.
+        for k in log.keys():
+            log[k] /= (1000. * n_eval_episodes)
         
         log['eval_ep_rew'] = ep_mean_rew / n_eval_episodes
         log['eval_ep_len'] = ep_mean_len / n_eval_episodes
@@ -114,7 +115,7 @@ class Trainer:
         self._explore()
         
         obs, done = self.env.reset(), False
-        ep_rew, ep_len, log = 0., 0., {}
+        ep_rew, ep_len, log, env_log = 0., 0., {}, {}
         for _ in range(total_steps):
             act = self.agent.act(obs, deterministic=False)
             next_obs, rew, done, info = self.env.step(act)
@@ -122,21 +123,23 @@ class Trainer:
             ep_len += 1
             
             if "wandb_log_info" in info.keys():
-                for k, v in info["wandb_log_info"].items():
-                    if k in log.keys(): log[k] += v
-                    else: log[k] = v
+                if env_log == {}: 
+                    env_log = {k: v for k, v in info["wandb_log_info"].items()}
+                else: 
+                    for k, v in info["wandb_log_info"].items(): env_log[k] += v
             
             # ！ set done=False when the episode reaches max length
             self.agent.buffer.add(obs, act, rew, done and (1-self.no_terminal), next_obs)
             if done:
-                for k, v in log.items():
-                    log[k] = v / 1000.
+                for k in env_log.keys():
+                    env_log[k] /= 1000.
                 log["ep_rew"] = ep_rew
                 log["ep_len"] = ep_len
+                log.update(env_log)
                 if self.wandb_log: wandb.log(log, step=self.step)
                 else: print(log)
                 obs, done = self.env.reset(), False
-                ep_rew, ep_len, log = 0., 0., {}
+                ep_rew, ep_len, env_log = 0., 0., {}
             else:
                 obs = next_obs
                 

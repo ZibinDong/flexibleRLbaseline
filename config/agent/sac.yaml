@@ -23,10 +23,10 @@ param:
   actor_learning_rate: 0.0003
   critic_learning_rate: 0.0003
   temperature_learning_rate: 0.0003
-  batch_size: 512
+  batch_size: 256
   max_grad_norm: 5.
   gamma: 0.99
-  tau: 0.005
+  tau: 0.01
 
   # agent parameters
   use_truncated_action: True

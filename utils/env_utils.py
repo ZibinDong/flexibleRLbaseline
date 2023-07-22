@@ -4,6 +4,7 @@ from dm_env import specs
 import numpy as np
 from collections import OrderedDict
 from dm_control.utils import rewards
+from copy import deepcopy
 
 
 def _spec_to_box(spec, dtype):
@@ -129,7 +130,7 @@ class HumanoidDIYEnv(core.Env):
         self.current_state = _flatten_obs(time_step.observation)
         extra['discount'] = time_step.discount
         reward, reward_info = self.cal_reward()
-        extra['wandb_log_info'] = reward_info
+        extra['wandb_log_info'] = deepcopy(reward_info)
         return obs, reward, done, extra
     
     def reset(self):
@@ -196,6 +197,7 @@ class HumanoidDIYEnv(core.Env):
             value_at_margin=0.3,
             sigmoid='gaussian'
         )
+        ori = (3*ori + 1) / 4
         
         return upright * height * move * ori, {
             "upright_reward": upright,

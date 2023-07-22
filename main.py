@@ -7,12 +7,29 @@ import utils
 from agents import SACAgent
 from train.trainer import Trainer
 
-import utils
-import matplotlib.pyplot as plt
-env = utils.HumanoidDIYEnv(seed=1)
-o = env.reset()
-plt.imshow(env.render())
-o2, r, d, info = env.step(env.action_space.sample())
+# import utils
+# import matplotlib.pyplot as plt
+# env = utils.HumanoidDIYEnv(seed=1)
+# o = env.reset()
+# plt.imshow(env.render())
+# o2, r, d, info = env.step(env.action_space.sample())
+# log = {}
+# done = False
+
+# o = env.reset()
+# while not done:
+#     a = env.action_space.sample()
+#     o, r, done, info = env.step(a)
+
+#     if "wandb_log_info" in info.keys():
+#         if log == {}: 
+#             log = {k: v for k, v in info["wandb_log_info"].items()}
+#         else: 
+#             for k, v in info["wandb_log_info"].items(): log[k] += v
+# for k, v in log.items(): log[k] /= 1000.
+
+
+
 
 @hydra.main(version_base=None, config_path="config", config_name="default")
 def main(cfg):

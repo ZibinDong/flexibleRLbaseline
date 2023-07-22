@@ -3,8 +3,8 @@ defaults:
   - env: diy
   - _self_
 
-seed: 1
-device: 'cuda:1'
+seed: 5
+device: 'cuda:5'
 total_steps: 5_000_000
 
 wandb_cfg:
@@ -17,8 +17,8 @@ Trainer:
   eval_interval: 500_000
   log_interval: 5_000
   save_interval: 500_000
-  target_update_interval: 1
-  gradient_step_interval: 1
+  target_update_interval: 2
+  gradient_step_interval: 2
   n_gradient_steps: 1
   save_video: True
   no_terminal: True
