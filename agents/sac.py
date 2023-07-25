@@ -66,7 +66,6 @@ class SACAgent(ContinuousAgent):
             log_std_min=log_std_min,
             log_std_max=log_std_max,
         ).to(device)
-        self.actor.apply(utils.orthogonal_init)
         
         self.critic = models.ContinuousCritic(
             observation_dim=observation_dim,
@@ -76,8 +75,6 @@ class SACAgent(ContinuousAgent):
             tau=tau,
             n_q_nets=n_q_nets,
         ).to(device)
-        self.critic.apply(utils.orthogonal_init)
-        self.critic.target_q_nets.load_state_dict(self.critic.q_nets.state_dict())
         
         # self.alpha = torch.nn.Parameter(
         #     torch.tensor(init_temperature, device=device), requires_grad=True)
@@ -138,7 +135,7 @@ class SACAgent(ContinuousAgent):
     
     def update_actor(self, obs, log):
         
-        with utils.FreezeParameters([self.critic]):
+        with utils.FreezeParameters([self.critic.q_nets]):
             act, log_prob = self.actor(obs)
             q = self.critic(obs, act, return_q_min=True)
             loss_actor = (self.alpha.detach() * log_prob - q).mean()

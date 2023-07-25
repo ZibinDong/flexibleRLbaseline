@@ -44,6 +44,7 @@ def main(cfg):
     elif cfg.env.benchmark == 'diy':
         env = utils.HumanoidDIYEnv(seed=cfg.seed)
         env_eval = utils.HumanoidDIYEnv(seed=cfg.seed)
+        env_eval.load_reward_target(env.get_reward_target())
     else:
         raise NotImplementedError(f"benchmark {cfg.env.benchmark} is not implemented")
     

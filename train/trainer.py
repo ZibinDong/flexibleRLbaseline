@@ -104,7 +104,7 @@ class Trainer:
         log['eval_ep_rew'] = ep_mean_rew / n_eval_episodes
         log['eval_ep_len'] = ep_mean_len / n_eval_episodes
 
-        if self.save_video: log["eval_video"] = wandb.Video(frames, fps=30, format="gif")
+        if self.save_video: log["eval_video"] = wandb.Video(frames, fps=30, format="mp4")
         if self.wandb_log: wandb.log(log, step=self.step)
         else: print(log)
             

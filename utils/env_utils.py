@@ -164,22 +164,38 @@ class HumanoidDIYEnv(core.Env):
         )
         
     def init_reward_target(self):
-        self._target_torso_upright = np.sin(np.random.rand()*np.pi/3 + np.pi/6) # 30~90 degree
-        self._target_waist_height = np.random.rand()*0.4 + 0.7 # 0.7~1.1
-        self._target_velocity = np.random.rand()*6.5 + 0.5 # 0.5~1.0
+        # self._target_torso_upright = np.sin(np.random.rand()*np.pi/3 + np.pi/6) # 30~90 degree
+        # self._target_waist_height = np.random.rand()*0.4 + 0.7 # 0.7~1.1
+        self._target_velocity = np.random.rand()*6.5 + 0.5 # 0.5~7.0
+        self._target_head_height = np.random.rand()*0.6 + 1.0 # 1.0~1.5
+        
+    def get_reward_target(self):
+        return {
+            "target_velocity": self._target_velocity,
+            "target_head_height": self._target_head_height,
+        }
+    def load_reward_target(self, target):
+        self._target_velocity = target["target_velocity"]
+        self._target_head_height = target["target_head_height"]
         
     def cal_reward(self):
         physics = self._env.physics
         
         # torso_upright
         upright = rewards.tolerance(physics.torso_upright(),
-                                bounds=(self._target_torso_upright, float('inf')), sigmoid='linear',
-                                margin=1.+self._target_torso_upright, value_at_margin=0)
+                                bounds=(0.5, float('inf')), sigmoid='linear',
+                                margin=1.0, value_at_margin=0)
     
         # waist_height
-        height = rewards.tolerance(physics.named.data.xpos["lower_waist", "z"],
-                                 bounds=(self._target_waist_height, float('inf')),
-                                 margin=self._target_waist_height/4)
+        # height = rewards.tolerance(physics.named.data.xpos["lower_waist", "z"],
+        #                          bounds=(self._target_waist_height, float('inf')),
+        #                          margin=self._target_waist_height, value_at_margin=0,
+        #                          sigmoid='linear')
+        height = rewards.tolerance(physics.head_height(),
+                                 bounds=(self._target_head_height, self._target_head_height),
+                                 margin=self._target_head_height/2.,
+                                 value_at_margin=0.1,
+                            )
         
         # move
         com_velocity = np.linalg.norm(physics.center_of_mass_velocity()[[0, 1]])
@@ -193,7 +209,7 @@ class HumanoidDIYEnv(core.Env):
         vel = self._env.physics.center_of_mass_velocity()
         theta = np.arctan2(vel[1], vel[0])
         ori = rewards.tolerance(
-            theta, margin=2.,
+            theta, margin=0.5,
             value_at_margin=0.3,
             sigmoid='gaussian'
         )
@@ -205,8 +221,11 @@ class HumanoidDIYEnv(core.Env):
             "move_reward": move,
             "orientation_reward": ori,
             
-            "upright_distaince": self._target_torso_upright - physics.torso_upright(),
-            "height_distaince": self._target_waist_height - physics.named.data.xpos["lower_waist", "z"],
+            "upright": physics.torso_upright(),
+            "height_distaince": self._target_head_height - physics.head_height(),
             "move_distaince": self._target_velocity - com_velocity,
             "orientation": theta,
+            
+            "target_height": self._target_head_height,
+            "target_vel": self._target_velocity
         }

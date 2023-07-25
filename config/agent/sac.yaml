@@ -15,7 +15,7 @@ param:
   critic_hidden_dims:
     - 1024
     - 1024
-  activation: 'relu' # 'relu', 'elu', 'leaky_relu'
+  activation: 'elu' # 'relu', 'elu', 'leaky_relu'
   init_temperature: 0.1
 
   # training parameters

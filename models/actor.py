@@ -33,6 +33,8 @@ class ContinuousStochesticActor(nn.Module):
             activation=activation,
         )
         
+        self.apply(utils.orthogonal_init)
+        
     def log_abs_det_jacobian(self, u):
         return 2. * (np.log(2) - u - torch.nn.functional.softplus(-2. * u))
         

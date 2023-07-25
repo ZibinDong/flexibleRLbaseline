@@ -42,7 +42,9 @@ class ContinuousCritic(Critic):
                 activation=activation, use_ln=True,
             ) for _ in range(n_q_nets)])
     
+        self.apply(utils.orthogonal_init)
         utils.freeze_params(self.target_q_nets)
+        self.target_q_nets.load_state_dict(self.q_nets.state_dict())
         
     @torch.no_grad()
     def update_target_parameters(self):
@@ -74,14 +76,14 @@ class DiscreteCritic(Critic):
             MLP(
                 observation_dim, action_dim,
                 hidden_dims=hidden_dims,
-                activation=activation,
+                activation=activation
             ) for _ in range(n_q_nets)])
     
         self.target_q_nets = nn.ModuleList([
             MLP(
                 observation_dim, action_dim,
                 hidden_dims=hidden_dims,
-                activation=activation,
+                activation=activation
             ) for _ in range(n_q_nets)])
     
         utils.hard_update(self.target_q_nets, self.q_nets)
