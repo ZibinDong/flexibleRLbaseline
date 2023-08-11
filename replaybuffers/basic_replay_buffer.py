@@ -53,7 +53,7 @@ class BasicReplayBuffer():
         self.size = min(self.size+1, self.max_replay_buffer_size)
         
     def sample(self, batch_size):
-        indeces = torch.randint(0, self.size, (batch_size,), device=self.device)
+        indeces = torch.randint(0, self.size, (batch_size,))
         return (
             self._obs[indeces],
             self._act[indeces],

@@ -15,15 +15,15 @@ param:
   critic_hidden_dims:
     - 1024
     - 1024
-  activation: 'elu' # 'relu', 'elu', 'leaky_relu'
-  init_temperature: 0.1
+  activation: 'relu' # 'relu', 'elu', 'leaky_relu'
+  init_temperature: 0.01
 
   # training parameters
   target_entropy: null # null for automatic setting
   actor_learning_rate: 0.0003
   critic_learning_rate: 0.0003
   temperature_learning_rate: 0.0003
-  batch_size: 256
+  batch_size: 512
   max_grad_norm: 5.
   gamma: 0.99
   tau: 0.01
@@ -35,7 +35,7 @@ param:
   log_std_max: 2.
 
   # replay buffer parameters
-  max_replay_buffer_size: 1_000_000
+  max_replay_buffer_size: 500_000
 
   
 

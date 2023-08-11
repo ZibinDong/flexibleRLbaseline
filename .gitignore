@@ -17,3 +17,14 @@ walker_attr_noisy.hdf5
 walker_attr.hdf5
 walker_video_pairs.hdf5
 walker_video_pairs.zip
+
+humanoid_agents/
+humanoid_video_pairs/
+humanoid_video_pairs.zip
+collect_humanoid_video.py
+
+mujoco_human_agents/
+
+collect_humanoid.py
+collect_humanoid_videos.py
+test.py

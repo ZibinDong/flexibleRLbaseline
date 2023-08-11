@@ -1,0 +1,4 @@
+benchmark: 'gym'
+
+param:
+  env_name: 'Humanoid-v5'

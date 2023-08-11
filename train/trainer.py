@@ -41,6 +41,7 @@ class Trainer:
         self.log_interval = log_interval
         self.save_interval = save_interval
         self.save_video = save_video
+        print(save_video)
         self.no_terminal = no_terminal
         
         self.step = 0
@@ -91,11 +92,11 @@ class Trainer:
                     else: 
                         for k, v in info["wandb_log_info"].items(): log[k] += v
                 
-                ep_mean_vel += np.linalg.norm(self.env_eval.physics.center_of_mass_velocity()[[0, 1]])
-                ep_mean_height += self.env_eval.physics.head_height()
+                # ep_mean_vel += np.linalg.norm(self.env_eval.physics.center_of_mass_velocity()[[0, 1]])
+                # ep_mean_height += self.env_eval.physics.head_height()
                 
                 if self.save_video and ptr < 200:
-                    frames[ptr] = np.transpose(self.env_eval.render(mode='rgb_array', camera_id=1, height=100, width=100), (2, 0, 1))
+                    frames[ptr] = np.transpose(self.env_eval.render(mode='rgb_array', camera_id=0, height=100, width=100), (2, 0, 1))
                     ptr += 1
         
         for k in log.keys():
@@ -149,7 +150,7 @@ class Trainer:
                 for _ in range(self.n_gradient_steps):
                     log = self.agent.update()
                     
-            if self.step % self.log_interval == 0:
+            if self.step % self.log_interval+1 == 0:
                 if self.wandb_log: wandb.log(log, step=self.step)
                 else: print(log)
                 

@@ -4,6 +4,7 @@ import hydra
 import wandb
 import utils
 
+from copy import deepcopy
 from agents import SACAgent
 from train.trainer import Trainer
 
@@ -29,15 +30,14 @@ from train.trainer import Trainer
 # for k, v in log.items(): log[k] /= 1000.
 
 
-
-
 @hydra.main(version_base=None, config_path="config", config_name="default")
 def main(cfg):
     
     # prepare environment 
+    utils.set_seed(cfg.seed)
     
     # cfg.Trainer.save_video *= (cfg.env.benchmark == 'dmc')
-    cfg.Trainer.save_video *= (cfg.env.benchmark in ['dmc', 'diy'])
+    cfg.Trainer.save_video *= (cfg.env.benchmark in ['dmc', 'diy', 'gym'])
     if cfg.env.benchmark == 'dmc':
         env = dmc2gym.make(seed=cfg.seed, **cfg.env.param)
         env_eval = dmc2gym.make(seed=cfg.seed, **cfg.env.param)
@@ -45,6 +45,9 @@ def main(cfg):
         env = utils.HumanoidDIYEnv(seed=cfg.seed)
         env_eval = utils.HumanoidDIYEnv(seed=cfg.seed)
         env_eval.load_reward_target(env.get_reward_target())
+    elif cfg.env.benchmark == 'gym':
+        env = gym.make(cfg.env.param.env_name)
+        env_eval = gym.make(cfg.env.param.env_name)
     else:
         raise NotImplementedError(f"benchmark {cfg.env.benchmark} is not implemented")
     

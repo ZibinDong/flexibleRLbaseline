@@ -166,7 +166,7 @@ class HumanoidDIYEnv(core.Env):
     def init_reward_target(self):
         # self._target_torso_upright = np.sin(np.random.rand()*np.pi/3 + np.pi/6) # 30~90 degree
         # self._target_waist_height = np.random.rand()*0.4 + 0.7 # 0.7~1.1
-        self._target_velocity = np.random.rand()*6.5 + 0.5 # 0.5~7.0
+        self._target_velocity = np.random.rand()*4. + 1.0 # 0.5~7.0
         self._target_head_height = np.random.rand()*0.6 + 1.0 # 1.0~1.5
         
     def get_reward_target(self):
@@ -184,7 +184,7 @@ class HumanoidDIYEnv(core.Env):
         # torso_upright
         upright = rewards.tolerance(physics.torso_upright(),
                                 bounds=(0.5, float('inf')), sigmoid='linear',
-                                margin=1.0, value_at_margin=0)
+                                margin=0.5, value_at_margin=0)
     
         # waist_height
         # height = rewards.tolerance(physics.named.data.xpos["lower_waist", "z"],

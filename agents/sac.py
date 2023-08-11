@@ -168,7 +168,7 @@ class SACAgent(ContinuousAgent):
         }, path / f"sac_{utils.abbreviate_number(step)}.pt")
         
     def load(self, path: Path, filename: str):
-        checkpoint = torch.load(path / filename)
+        checkpoint = torch.load(path / filename, self.device)
         self.actor.load_state_dict(checkpoint['actor'])
         # self.critic.load_state_dict(checkpoint['critic'])
         # self.log_alpha.data = checkpoint['alpha']

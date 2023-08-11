@@ -1,11 +1,11 @@
 defaults:
   - agent: sac
-  - env: diy
+  - env: gym
   - _self_
 
 seed: 1
-device: 'cuda:1'
-total_steps: 5_000_000
+device: 'cuda:0'
+total_steps: 10_000_000
 
 wandb_cfg:
   use_wandb_log: True
